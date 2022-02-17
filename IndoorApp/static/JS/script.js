@@ -97,14 +97,14 @@ var nivel22 = L.geoJSON(hqData2, {
 })
 
 
-//+++++++ niveles capas
+//+++++++ niveles capas ++++
 
 nivel1 =L.geoJSON(hqData)
 nivel2 = L.geoJSON(hqData2)
 
 //marcador
-var marca = L.marker([19.5412371, -96.9271773], {draggable: true})
-
+/*var marca = L.marker([19.5412371, -96.9271773], {draggable: true})
+*/
 //console.log(marca.getLatLng());
     //marca.addTo(map);
 
@@ -118,7 +118,6 @@ var baseMaps ={
     "OSM_Mapnik" : OpenStreetMap_Mapnik,
     "OSM_DE" : OpenStreetMap_DE,
     "Google Hybrid" : googleHybrid,
-
     //"wms" : geo,
 
 };  
@@ -128,31 +127,22 @@ var niveles = {
     "Nivel 2": nivel22,
 }
 
-
-
-//var overlayMaps = {
-  //  "Marker" : marca,  //
-//
-//
-//};
-
-
+/// control de capas
 L.control.layers(baseMaps, niveles).addTo(map);
 
 
 
 /* ++++++ eventos de leaflet +++
  */
-// e
 map.on('mouseover',  function (){
     console.log('el mouse esta en el mapa')
 });
 
-$("#ruta").click(function (){
+/*$("#ruta").click(function (){
 		nmarker = 0;
 		map.removeLayer(layerGroup);
 	})
-
+*/
 
 
 function mostrar() {
@@ -163,88 +153,83 @@ function mostrar() {
 }
 
 
+var IndoorFei = L.layerGroup().addTo(map);
+
+function colorPuntos(d) {
+	return d == "aula102" ? '#FF0000' :
+		'#FF0000';
+};
 
 
-	 var salamancaMonumental = L.layerGroup().addTo(map);
+function estilo_puntos (feature) {
+	return{
+		radius: 7,
+		fillColor: colorPuntos(feature.properties.name),
+		color: colorPuntos(feature.properties.name),
+		weight: 1,
+		opacity : 1,
+		fillOpacity : 0.5
+	};
+};
 
-	 			function colorPuntos(d) { 
-					return d == "aula102" ? '#FF0000' : 
-						'#FF0000'; 
-				};
+function popup_puntos (feature, layer) {
+	document.getElementById("menu-bar").checked = true;
+	document.getElementById('bt21').innerHTML = "<div style=text-align:center><h2>"+feature.properties.name+
+		"<h2></div>" + "<hr><table><tr><td> <b> Referencia: </b> "+feature.properties.ref+
+		"</td></tr><tr><td> <b> Nivel <b/>: "+feature.properties.level+
+		"</td></tr><tr><td>"+feature.properties.Descripcion+
+		"</td></tr><tr><td> <b>Puntos Cercanos</b>: "+feature.properties.pref+
+		"</td></tr></table>";
 
-				function estilo_monumentos (feature) {
-					return{
-						radius: 7,
-						fillColor: colorPuntos(feature.properties.name), 
-			    		color: colorPuntos(feature.properties.name), 
-						weight: 1,
-						opacity : 1,
-						fillOpacity : 0.5
-					};
-				};
-				function popup_monumentos (feature, layer) {
-            document.getElementById("menu-bar").checked = true;				    
+	layer.bindPopup ("<div style=text-align:center><h3>"+feature.properties.name+
+		"</td></tr></table>",
+		{minWidth: 150, maxWidth: 200});
+};
 
-        document.getElementById('bt21').innerHTML = "<div style=text-align:center><h2>"+feature.properties.name+
-                "<h2></div>" + "<hr><table><tr><td> <b> Referencia: </b> "+feature.properties.ref+
-                "</td></tr><tr><td> <b> Nivel <b/>: "+feature.properties.level+
-			"</td></tr><tr><td>"+feature.properties.Descripcion+
-"</td></tr><tr><td> <b>Puntos Cercanos</b>: "+feature.properties.pref+
-                "</td></tr></table>";
-
-                       
-        layer.bindPopup ("<div style=text-align:center><h3>"+feature.properties.name+
-						"</td></tr></table>",
-            {minWidth: 150, maxWidth: 200});
-				};
-
-				var MarkerOptions = {
-				    radius: 8,
-				    fillColor: "#ff7800",
-				    color: "#000",
-				    weight: 1,
-				    opacity: 1,
-				    fillOpacity: 0.8
-					};
+var MarkerOptions = {
+	radius: 8,
+	fillColor: "#ff7800",
+	color: "#000",
+	weight: 1,
+	opacity: 1,
+	fillOpacity: 0.8
+};
 
 
-	function myFunction() { 
-			 	var monumentos = L.geoJSON(hqDat, {
-							pointToLayer: function (feature, latlng) {
-									return L.circleMarker(latlng, MarkerOptions);
-								},	
-							style:estilo_monumentos,
-							onEachFeature: popup_monumentos	
-					});		
+function myFunction() {
+	var puntos = L.geoJSON(hqDat, {
+		pointToLayer: function (feature, latlng) {
+		return L.circleMarker(latlng, MarkerOptions);
+		},
+		style:estilo_puntos,
+		onEachFeature: popup_puntos
+	});
+}
 
-			 	//salamancaMonumental.addLayer(monumentos);	
-	
+
+$("#buscar").click(function(){
+	var miSelect = document.getElementById("nombres").value;
+	if (miSelect == ""){
+		swal.fire( 'El contenido no puede ir vacio')
 	}
 
-
-	$("#buscar").click(function(){
-		var miSelect = document.getElementById("nombres").value;
-		if (miSelect == ""){
-			swal.fire( 'El contenido no puede ir vacio')
-
-		}
-		var monumentos = L.geoJSON(hqDat, {
-			pointToLayer: function (feature, latlng) {
-				return L.circleMarker(latlng, MarkerOptions);
-				},
-			filter: function(feature, layer) {
-				if(miSelect != "TODOS"){
-					var x = feature.properties.name == miSelect;
-					return (feature.properties.area == miSelect || feature.properties.name == miSelect || feature.properties.pe == miSelect || feature.properties.ref == miSelect || feature.properties.servicio == miSelect  || feature.properties.personal == miSelect || feature.properties.servicio1 == miSelect || feature.properties.servicio2 == miSelect);
-					//alert("hola");
-					}	else
-						return true;
-				},
-			style:estilo_monumentos,
-			onEachFeature: popup_monumentos
-		});
-		salamancaMonumental.clearLayers();
-		salamancaMonumental.addLayer(monumentos);
+	var puntos = L.geoJSON(hqDat, {
+		pointToLayer: function (feature, latlng) {
+			return L.circleMarker(latlng, MarkerOptions);
+			},
+		filter: function(feature, layer) {
+			if(miSelect != "TODOS"){
+				var x = feature.properties.name == miSelect;
+				return (feature.properties.area == miSelect || feature.properties.name == miSelect || feature.properties.pe == miSelect || feature.properties.ref == miSelect || feature.properties.servicio == miSelect  || feature.properties.personal == miSelect || feature.properties.servicio1 == miSelect || feature.properties.servicio2 == miSelect);
+				//alert("hola");
+			}	else
+				return true;
+			},
+		style:estilo_puntos,
+		onEachFeature: popup_puntos
 	});
+	IndoorFei.clearLayers();
+	IndoorFei.addLayer(puntos);
+});
 
 

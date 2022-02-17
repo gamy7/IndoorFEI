@@ -16,13 +16,10 @@ services:
     volumes: 
       - ./IndoorApp/static:/static/
       - ./IndoorApp/nginx/conf/:/etc/nginx/conf.d/
-      - ./certificados:/tmp
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on: 
       - fei
     ports: 
       - 9000:80
-      - 9100:443
     environment: 
         PATH_PREFIX: IndoorApp
 
